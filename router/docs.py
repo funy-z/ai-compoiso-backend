@@ -3,11 +3,11 @@ from fastapi import Body, APIRouter
 from typing import Annotated
 
 from fastapi.responses import StreamingResponse
-from ai_compoiso_backend.custom_types import AIDocBodyType, OpTypeEnum, OpSubTypeEnum
+from custom_types import AIDocBodyType, OpTypeEnum, OpSubTypeEnum
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_community.chat_models import ChatOllama
 
-from ai_compoiso_backend.utils import stream_response, astream_response
+from utils import stream_response, astream_response
 
 router = APIRouter(
     prefix="/ai_docs",
