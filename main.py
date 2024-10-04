@@ -21,7 +21,7 @@ app.include_router(docs.router)
 
 @app.get("/")
 async def app_root():
-    print('visit app_root')
+    # print('visit app_root')
     return {"message": "root path"}
 
 if __name__ == "__main__":
