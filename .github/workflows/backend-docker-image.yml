@@ -3,10 +3,10 @@ run-name: ai-composiso - Backend Image - ${{ github.run_number }} 🚀
 on:
   push:
     branches:
-      - main
+      - main_deprecated
   pull_request:
     branches:
-      - main
+      - main_deprecated
 jobs:
   Backend-Build:
     runs-on: ubuntu-latest
