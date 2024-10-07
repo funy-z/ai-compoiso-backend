@@ -38,4 +38,6 @@ python -m venv .venv
 source .venv/bin/activate
 # 生成 requirements.txt
 pip freeze > requirements.txt
+# 安装
+pip install --no-cache-dir -r requirements.txt
 ```

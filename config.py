@@ -17,7 +17,7 @@ class Config():
               f")")
 
 class DevelopmentConfig(Config):
-  # 测试使用
+  # # 测试使用
   # @staticmethod
   # def load_api_key():
   #       try:
@@ -29,6 +29,7 @@ class DevelopmentConfig(Config):
   #           return None
 
   # ZHIPUAI_API_KEY = load_api_key()
+  # PRODUCTION_ENV = True
 
   PRODUCTION_ENV = False
   UVICORN_PORT = 8000

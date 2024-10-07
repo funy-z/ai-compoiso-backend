@@ -1,49 +1,23 @@
 import logging
 import logging.config
-from config import config
 import os
+import json
+
+from config import config
 
 def setup_logging():
     if config.PRODUCTION_ENV:
         log_dir = os.path.abspath(config.LOG_DIR)
         if not os.path.exists(log_dir):
             os.makedirs(log_dir)
+        # 读取log配置
+        with open('logging_config.json', 'r') as f:
+            logging_config = json.load(f)
 
-        logging_config = {
-            'version': 1,
-            'disable_existing_loggers': False,
-            'formatters': {
-                'standard': {
-                    'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-                },
-            },
-            'handlers': {
-                'app_handler': {
-                    'class': 'logging.FileHandler',
-                    'filename': os.path.join(log_dir, 'app.log'),
-                    'formatter': 'standard',
-                    'level': 'INFO',
-                },
-                'ai_docs_handler': {
-                    'class': 'logging.FileHandler',
-                    'filename': os.path.join(log_dir, 'ai_docs.log'),
-                    'formatter': 'standard',
-                    'level': 'INFO',
-                }
-            },
-            'loggers': {
-                '': {
-                    'handlers': ['app_handler'],
-                    'level': 'INFO',
-                    'propagate': True
-                },
-                'ai_docs': {
-                    'handlers': ['ai_docs_handler'],
-                    'level': 'INFO',
-                    'propagate': False
-                }
-            }
-        }
+        # 调整filename为绝对路径
+        for handler in logging_config['handlers'].values():
+            if 'filename' in handler:
+                handler['filename'] = os.path.join(log_dir, handler['filename'])
     else:
         logging_config = {
             'version': 1,

@@ -85,6 +85,7 @@ async def get_ai_docs(params: Annotated[AIDocBodyType, ...] = Body()):
         "action": action,
         "content": content,
     }
+    
     docs_logger.info(f"/generate API chain_params: {chain_params}, PRODUCTION_ENV: {config.PRODUCTION_ENV}")
     if config.PRODUCTION_ENV:
         result = await zhipuai.astream(prompt=exec_prompt, chain_params=chain_params)

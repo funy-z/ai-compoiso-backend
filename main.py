@@ -1,7 +1,8 @@
 
 import time
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 import uvicorn
 import threading
 
@@ -21,6 +22,14 @@ app.add_middleware(
     expose_headers=["*"],
 )
 
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    appLogger.error(f"Unhandled exception: {exc}", exc_info=True)
+    return JSONResponse(
+        status_code=500,
+        content={"message": "Internal Server Error in main"}
+    )
+
 app.include_router(docs.router)
 
 def update_api_key():
@@ -28,7 +37,8 @@ def update_api_key():
         API_KEY = config.load_api_key()
         if API_KEY:
             config.ZHIPUAI_API_KEY = API_KEY
-        appLogger.info(f'monitor ZHIPUAI_API_KEY heartbeat, ZHIPUAI_API_KEY: {config.ZHIPUAI_API_KEY}')
+        else:  
+          appLogger.info(f'monitor ZHIPUAI_API_KEY heartbeat, API_KEY is empty: {API_KEY}')
         time.sleep(60)  # 每分钟检查一次
 
 @app.get("/")
