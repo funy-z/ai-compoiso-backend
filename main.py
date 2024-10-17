@@ -1,13 +1,14 @@
 
 import time
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 import uvicorn
 import threading
+from uuid import uuid4
 
 from log_config import appLogger
-from router import docs
+from router import docs, chat
 from config import config
 
 
@@ -31,6 +32,7 @@ async def global_exception_handler(request: Request, exc: Exception):
     )
 
 app.include_router(docs.router)
+app.include_router(chat.router)
 
 def update_api_key():
     while True:
@@ -41,9 +43,35 @@ def update_api_key():
           appLogger.info(f'monitor ZHIPUAI_API_KEY heartbeat, API_KEY is empty: {API_KEY}')
         time.sleep(60)  # 每分钟检查一次
 
+# 拦截-中间件
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.perf_counter()
+    user_id = request.cookies.get('ai_compoiso_user_id')
+    if not user_id:
+        allocation_user_id = uuid4().hex
+        appLogger.info(f'allocation user_id and set in headers:{allocation_user_id}')
+        request.state.user_id = allocation_user_id
+    else:
+        appLogger.info(f'set user_id in headers:{user_id}')
+        request.state.user_id = user_id
+    response = await call_next(request)
+    process_time = time.perf_counter() - start_time
+    # 请求耗时
+    response.headers["X-Process-Time"] = str(process_time)
+    # 添加cookie
+    if not user_id:
+      # 1天过期
+      max_age = 1 * 24 * 60 * 60
+      response.set_cookie(key="ai_compoiso_user_id", value=request.state.user_id, max_age=max_age)
+      appLogger.info(f'set allocation user_id in cookie:{request.state.user_id}')
+    return response
+
 @app.get("/")
-async def app_root():
+async def app_root(response: Response, request: Request):
     appLogger.info('visit app_root')
+    user_id = request.state.user_id
+    appLogger.info(f'receive user_id:{user_id}')
     return {"message": "root path"}
 
 if __name__ == "__main__":
