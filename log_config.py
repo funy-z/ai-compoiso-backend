@@ -5,6 +5,7 @@ import json
 
 from config import config
 
+
 def setup_logging():
     if config.PRODUCTION_ENV:
         log_dir = os.path.abspath(config.LOG_DIR)
@@ -17,7 +18,8 @@ def setup_logging():
         # 调整filename为绝对路径
         for handler in logging_config['handlers'].values():
             if 'filename' in handler:
-                handler['filename'] = os.path.join(log_dir, handler['filename'])
+                handler['filename'] = os.path.join(
+                    log_dir, handler['filename'])
     else:
         logging_config = {
             'version': 1,
@@ -44,6 +46,7 @@ def setup_logging():
         }
 
     logging.config.dictConfig(logging_config)
+
 
 appLogger = logging
 

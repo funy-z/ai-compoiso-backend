@@ -37,13 +37,13 @@ class DevelopmentConfig(Config):
     # # 测试使用
     # @staticmethod
     # def load_api_key():
-    #       try:
-    #           with open('.env/ZHIPUAI_API_KEY', "r") as file:
-    #               result = file.read().strip()
-    #               logging.info(f"open .env/ZHIPUAI_API_KEY, result: {result}")
-    #               return result
-    #       except FileNotFoundError:
-    #           return None
+    #     try:
+    #         with open('.env/ZHIPUAI_API_KEY', "r") as file:
+    #             result = file.read().strip()
+    #             logging.info(f"open .env/ZHIPUAI_API_KEY, result: {result}")
+    #             return result
+    #     except FileNotFoundError:
+    #         return None
 
     # ZHIPUAI_API_KEY = load_api_key()
     # PRODUCTION_ENV = True

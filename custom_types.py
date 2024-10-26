@@ -18,7 +18,7 @@ class OpSubTypeEnum(Enum):
 
 
 class AIDocBodyType(BaseModel):
-    content: Annotated[str, "文章内容"]
+    content: Annotated[str, "文章内容"] = ""
     question: Annotated[str, "自由问题"]
     # 整合
     op_type: Annotated[OpTypeEnum | str,

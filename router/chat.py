@@ -23,10 +23,12 @@ prompt = ChatPromptTemplate.from_messages([
     ("human", "{input}")
 ])
 
+
 @router.post("/chat_with_history")
 async def chat_with_history(request: Request, message: str = Body(...)):
     user_id = request.state.user_id
-    chat_logger.info(f"/chat_with_history API, user_id: {user_id}, message:{message}")
+    chat_logger.info(
+        f"/chat_with_history API, user_id: {user_id}, message:{message}")
     # result = ollama.invoke_with_history(params, config={"configurable": {"session_id": user_id}})
     # return { "data": result }
     chain_params = {
@@ -38,13 +40,16 @@ async def chat_with_history(request: Request, message: str = Body(...)):
         # result = zhipuai.stream_with_history(prompt=prompt, chain_params=chain_params, config=history_config)
         # result = await zhipuai.ainvoke_with_history(prompt=prompt, chain_params=chain_params, config=history_config)
         result = await zhipuai.astream_with_history(prompt=prompt, chain_params=chain_params, config=history_config)
-        chat_logger.info(f"/chat_with_history API, zhipuai invoke_with_history result:{result}")
+        chat_logger.info(
+            f"/chat_with_history API, zhipuai invoke_with_history result:{result}")
     else:
-        # result = ollama.invoke_with_history(prompt=prompt, chain_params=chain_params, config=history_config)
+        # result = ollama.invoke_with_history(
+        #     prompt=prompt, chain_params=chain_params, config=history_config)
         # result = ollama.stream_with_history(prompt=prompt, chain_params=chain_params, config=history_config)
         # result = await ollama.ainvoke_with_history(prompt=prompt, chain_params=chain_params, config=history_config)
         result = await ollama.astream_with_history(prompt=prompt, chain_params=chain_params, config=history_config)
-        chat_logger.info(f"/chat_with_history API, ollama invoke_with_history result:{result}")
+        chat_logger.info(
+            f"/chat_with_history API, ollama invoke_with_history result:{result}")
     # 1. invoke() return
     # return result
     # 2. stream() return
@@ -53,4 +58,3 @@ async def chat_with_history(request: Request, message: str = Body(...)):
     # return result
     # 4. astream() return
     return StreamingResponse(astream_response(result))
-

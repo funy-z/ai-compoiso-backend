@@ -36,18 +36,6 @@
       "filename": "httpx.log",
       "formatter": "standard",
       "level": "INFO"
-    },
-    "ai_services_handler": {
-      "class": "logging.FileHandler",
-      "filename": "ai_services.log",
-      "formatter": "standard",
-      "level": "INFO"
-    },
-    "ai_chat_handler": {
-      "class": "logging.FileHandler",
-      "filename": "ai_chat.log",
-      "formatter": "standard",
-      "level": "INFO"
     }
   },
   "loggers": {
@@ -102,14 +90,14 @@
     },
     "ai_services": {
       "handlers": [
-        "ai_services_handler"
+        "app_handler"
       ],
       "level": "INFO",
       "propagate": false
     },
     "ai_chat": {
       "handlers": [
-        "ai_chat_handler"
+        "app_handler"
       ],
       "level": "INFO",
       "propagate": false

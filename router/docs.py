@@ -59,9 +59,9 @@ async def get_ai_docs(request: Request, params: Annotated[AIDocBodyType, ...] = 
     user_id = request.state.user_id
 
     docs_logger.info(f"/generate API params, op_type:{op_type}, op_sub_type: {op_sub_type},"
-                        f"question: {question},"
-                        f"content: {content},"
-                        f"user_id: {user_id}")
+                     f"question: {question},"
+                     f"content: {content},"
+                     f"user_id: {user_id}")
 
     exec_prompt = None
     action = ""
@@ -70,9 +70,9 @@ async def get_ai_docs(request: Request, params: Annotated[AIDocBodyType, ...] = 
         # 1. 处理自由问题
         exec_prompt = prompt_free
         if content:
-          input_msg = f'根据用户的问题，对用户的内容进行处理。\
-              问题="{question}"。 \
-              内容="{content}"'
+            input_msg = f'根据用户的问题，对用户的内容进行处理。\
+                问题="{question}"。 \
+                内容="{content}"'
         else:
             input_msg = question
     else:
@@ -89,12 +89,12 @@ async def get_ai_docs(request: Request, params: Annotated[AIDocBodyType, ...] = 
             "formal": "更正式",
         }
         if not content:
-            return { "success": True, "msg": "content不能为空", "code": 1}
+            return {"success": True, "msg": "content不能为空", "code": 1}
         action = action_dict[op_type]
         if op_type == OpTypeEnum.polish:
             action = f"{action},让内容{
                 sub_action_dict[op_sub_type or OpSubTypeEnum.colloquial.value]}"
-            
+
         input_msg = f"请对如下内容进行{action}: '{content}'"
         exec_prompt = prompt
 
@@ -106,17 +106,75 @@ async def get_ai_docs(request: Request, params: Annotated[AIDocBodyType, ...] = 
     # }
     chain_params = {
         "input": input_msg,
+        "history": [],
     }
     history_config = get_history_config(user_id=user_id)
-    docs_logger.info(f"/generate API chain_params: {chain_params}, PRODUCTION_ENV: {config.PRODUCTION_ENV}")
+    docs_logger.info(
+        f"/generate API chain_params: {chain_params}, PRODUCTION_ENV: {config.PRODUCTION_ENV}")
+
+    # 1. invoke()
+    # if config.PRODUCTION_ENV:
+    #     # result = zhipuai.invoke(
+    #     #     prompt=exec_prompt, chain_params=chain_params, user_id=user_id)
+    #     result = zhipuai.invoke_with_history(
+    #         prompt=exec_prompt, chain_params=chain_params, config=history_config, user_id=user_id)
+    #     docs_logger.info(
+    #         f"/generate API, zhipuai astream_with_history start to response! ")
+    # else:
+    #     # result = ollama.invoke(
+    #     #     prompt=exec_prompt, chain_params=chain_params, user_id=user_id)
+    #     result = ollama.invoke_with_history(
+    #         prompt=exec_prompt, chain_params=chain_params, config=history_config, user_id=user_id)
+    #     docs_logger.info(
+    #         f"/generate API, ollama astream_with_history start to response! ")
+
+    # return result
+
+    # 2. stream()
+    # if config.PRODUCTION_ENV:
+    #     # result = zhipuai.stream(
+    #     #     prompt=exec_prompt, chain_params=chain_params, user_id=user_id)
+    #     result = zhipuai.stream_with_history(
+    #         prompt=exec_prompt, chain_params=chain_params, config=history_config, user_id=user_id)
+    #     docs_logger.info(
+    #         f"/generate API, zhipuai astream_with_history start to response! ")
+    # else:
+    #     # result = ollama.stream(prompt=exec_prompt, chain_params=chain_params, user_id=user_id)
+    #     result = ollama.stream_with_history(
+    #         prompt=exec_prompt, chain_params=chain_params, config=history_config, user_id=user_id)
+    #     docs_logger.info(
+    #         f"/generate API, ollama astream_with_history start to response! ")
+
+    # return StreamingResponse(stream_response(result))
+
+    # 3. ainvoke()
+    # if config.PRODUCTION_ENV:
+    #     result = await zhipuai.ainvoke(
+    #         prompt=exec_prompt, chain_params=chain_params, user_id=user_id)
+    #     # result = await zhipuai.ainvoke_with_history(
+    #     #     prompt=exec_prompt, chain_params=chain_params, config=history_config, user_id=user_id)
+    #     docs_logger.info(
+    #         f"/generate API, zhipuai astream_with_history start to response! ")
+    # else:
+    #     # result = await ollama.ainvoke(
+    #     #     prompt=exec_prompt, chain_params=chain_params, user_id=user_id)
+    #     result = await ollama.ainvoke_with_history(
+    #         prompt=exec_prompt, chain_params=chain_params, config=history_config, user_id=user_id)
+    #     docs_logger.info(
+    #         f"/generate API, ollama astream_with_history start to response! ")
+
+    # return result
+
+    # 4. astream()
     if config.PRODUCTION_ENV:
-        # result = await zhipuai.astream(prompt=exec_prompt, chain_params=chain_params)
-        result = await zhipuai.astream_with_history(prompt=exec_prompt, chain_params=chain_params, config=history_config)
-        docs_logger.info(f"/generate API, zhipuai astream_with_history start to response! ")
+        # result = await zhipuai.astream(prompt=exec_prompt, chain_params=chain_params, user_id=user_id)
+        result = await zhipuai.astream_with_history(prompt=exec_prompt, chain_params=chain_params, config=history_config, user_id=user_id)
+        docs_logger.info(
+            f"/generate API, zhipuai astream_with_history start to response! ")
     else:
-        # result = await ollama.astream(prompt=exec_prompt, chain_params=chain_params)
-        result = await ollama.astream_with_history(prompt=exec_prompt, chain_params=chain_params, config=history_config)
-        docs_logger.info(f"/generate API, ollama astream_with_history start to response! ")
+        # result = await ollama.astream(prompt=exec_prompt, chain_params=chain_params, user_id=user_id)
+        result = await ollama.astream_with_history(prompt=exec_prompt, chain_params=chain_params, config=history_config, user_id=user_id)
+        docs_logger.info(
+            f"/generate API, ollama astream_with_history start to response! ")
 
     return StreamingResponse(astream_response(result))
-
