@@ -11,7 +11,7 @@ import create_tables
 from log_config import appLogger
 from router import docs, chat
 from config import config
-from database.user import add_user
+from database.user import add_user, query_user
 
 
 app = FastAPI()
@@ -61,6 +61,10 @@ async def add_process_time_header(request: Request, call_next):
         request.state.user_id = allocation_user_id
         add_user(user_id=allocation_user_id, ip=request.client.host)
     else:
+        user_row = query_user(user_id=user_id)
+        if user_row is None:
+            add_user(user_id=user_id, ip=request.client.host)
+            appLogger.info(f'add exist user_id:{user_id}')
         appLogger.info(f'set user_id in headers:{user_id}')
         request.state.user_id = user_id
     response = await call_next(request)

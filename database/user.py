@@ -2,7 +2,7 @@
 from sqlalchemy import String, Integer, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column
 from datetime import datetime
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import SQLAlchemyError, NoResultFound
 import logging
 
 from database.engine import Base, session, get_utc_plus_8_time
@@ -37,9 +37,14 @@ def add_user(user_id: str, ip: str = ""):
 
 # 根据user_id查询用户
 def query_user(user_id: str):
-    query = session.query(User).filter_by(user_id=user_id)
-    result = query.one()
-    return result
+    try:
+        query = session.query(User).filter_by(user_id=user_id)
+        result = query.one()
+        return result
+    except NoResultFound:
+        # 处理没有找到记录的情况
+        print(f"No user found with user_id: {user_id}")
+        return None
 
 
 # 查询用户列表
