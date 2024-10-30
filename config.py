@@ -23,7 +23,7 @@ class Config():
     # ZHIPUAI_API_KEY = ''
     LOG_DIR = '/app/logs'
     SQLITE3_DB = '/app/sqlite3_db/'
-    API_KEY_DIR = '/app'
+    API_KEY_DIR = '/app/environ'
 
     def __str__(self):
         return (f"Config(PRODUCTION_ENV: {self.PRODUCTION_ENV},"
