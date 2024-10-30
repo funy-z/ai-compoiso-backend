@@ -25,3 +25,5 @@ class AIDocBodyType(BaseModel):
                        "操作类型:润色/续写/缩短篇幅/扩充篇幅"] = Field(default="")
     op_sub_type: Annotated[OpSubTypeEnum | str, "润色的子类型"] = Field(
         default="")
+    model_provider: str = Field(default="")
+    model_name: str = Field(default="")

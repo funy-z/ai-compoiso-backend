@@ -20,32 +20,21 @@ class Config():
     PRODUCTION_ENV = True
     UVICORN_PORT = 80
     UVICORN_RELOAD = False
-    ZHIPUAI_API_KEY = ''
+    # ZHIPUAI_API_KEY = ''
     LOG_DIR = '/app/logs'
     SQLITE3_DB = '/app/sqlite3_db/'
+    API_KEY_DIR = '/app'
 
     def __str__(self):
         return (f"Config(PRODUCTION_ENV: {self.PRODUCTION_ENV},"
                 f"UVICORN_PORT: {self.UVICORN_PORT},"
                 f"UVICORN_RELOAD: {self.UVICORN_RELOAD},"
-                f"ZHIPUAI_API_KEY: {self.ZHIPUAI_API_KEY},"
                 f"LOG_DIR: {self.LOG_DIR},"
                 f")")
 
 
 class DevelopmentConfig(Config):
-    # # 测试使用
-    # @staticmethod
-    # def load_api_key():
-    #     try:
-    #         with open('.env/ZHIPUAI_API_KEY', "r") as file:
-    #             result = file.read().strip()
-    #             logging.info(f"open .env/ZHIPUAI_API_KEY, result: {result}")
-    #             return result
-    #     except FileNotFoundError:
-    #         return None
-
-    # ZHIPUAI_API_KEY = load_api_key()
+    # 测试使用
     # PRODUCTION_ENV = True
 
     PRODUCTION_ENV = False
@@ -53,31 +42,19 @@ class DevelopmentConfig(Config):
     UVICORN_RELOAD = True
     LOG_DIR = './logs'
     SQLITE3_DB = './db/'
+    API_KEY_DIR = './.env'
 
     def __init__(self) -> None:
         super().__init__()
         self.SQLITE3_DB = get_dir_base_root(self.SQLITE3_DB)
-
-
-api_key_file = '/app/ZHIPUAI_API_KEY'
+        self.API_KEY_DIR = get_dir_base_root(self.API_KEY_DIR)
 
 
 class ProductionConfig(Config):
-    @staticmethod
-    def load_api_key():
-        try:
-            with open(api_key_file, "r") as file:
-                result = file.read().strip()
-                logging.info(f"open {api_key_file}, result: {result}")
-                return result
-        except FileNotFoundError:
-            return None
-
-    ZHIPUAI_API_KEY = load_api_key()
-
     def __init__(self) -> None:
         super().__init__()
         self.SQLITE3_DB = get_dir_base_root(self.SQLITE3_DB)
+        self.API_KEY_DIR = get_dir_base_root(self.API_KEY_DIR)
 
 
 def get_config():
