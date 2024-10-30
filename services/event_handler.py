@@ -62,8 +62,6 @@ class ChainEvenHandler(BaseCallbackHandler):
         # _model_info: {"provider": "ZhipuAI", "price": 0.1, "price_tokens": 1000}
         _model_info = model_info.get(model_name, None)
         api_key = ''
-        if model_name == 'glm-4':
-            api_key = config.ZHIPUAI_API_KEY
         if _model_info:
             price_tokens = _model_info.get("price_tokens", 1000)
             total_price = Decimal(total_tokens) / Decimal(price_tokens) * \
@@ -82,7 +80,8 @@ class ChainEvenHandler(BaseCallbackHandler):
                         )
             add_cost(cost=cost)
         else:
-            logging.error(f'on_llm_end, _model_info is empty!')
+            logging.error(
+                f'on_llm_end, _model_info is empty!,model_name:{model_name}')
 
     # async def on_llm_new_token(
     #     self,

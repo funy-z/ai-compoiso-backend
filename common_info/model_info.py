@@ -21,4 +21,10 @@ model_info = {
         "price_tokens": 1000,
         "currency": CurrencyEnum.CNY
     },
+    "gpt-4": {
+        "provider": 'openAI',
+        "price": Decimal(0.03),  # 每price_tokens对应的价格
+        "price_tokens": 1000,  # 单价token数
+        "currency": CurrencyEnum.USD
+    },
 }

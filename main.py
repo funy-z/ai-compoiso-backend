@@ -38,15 +38,15 @@ app.include_router(docs.router)
 app.include_router(chat.router)
 
 
-def update_api_key():
-    while True:
-        API_KEY = config.load_api_key()
-        if API_KEY:
-            config.ZHIPUAI_API_KEY = API_KEY
-        else:
-            appLogger.info(
-                f'monitor ZHIPUAI_API_KEY heartbeat, API_KEY is empty: {API_KEY}')
-        time.sleep(60)  # 每分钟检查一次
+# def update_api_key():
+#     while True:
+#         API_KEY = config.load_api_key()
+#         if API_KEY:
+#             config.ZHIPUAI_API_KEY = API_KEY
+#         else:
+#             appLogger.info(
+#                 f'monitor ZHIPUAI_API_KEY heartbeat, API_KEY is empty: {API_KEY}')
+#         time.sleep(60)  # 每分钟检查一次
 
 
 # 拦截-中间件
@@ -95,7 +95,7 @@ async def app_root(response: Response, request: Request):
 
 if __name__ == "__main__":
     appLogger.info(f'start app, config: {config}')
-    if config.PRODUCTION_ENV:
-        threading.Thread(target=update_api_key, daemon=True).start()
+    # if config.PRODUCTION_ENV:
+    #     threading.Thread(target=update_api_key, daemon=True).start()
     uvicorn.run('main:app', host="0.0.0.0",
                 port=config.UVICORN_PORT, reload=config.UVICORN_RELOAD)

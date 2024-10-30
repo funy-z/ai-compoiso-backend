@@ -9,8 +9,9 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 import logging
 
 from custom_types import AIDocBodyType, OpTypeEnum, OpSubTypeEnum
-from services import ollama, zhipuai
+from services import chat_models
 from config import config
+from services.chat_models import AICompoisoModelServiceType, ModelProviderEnum
 
 from utils import get_history_config, stream_response, astream_response
 
@@ -27,16 +28,12 @@ system_prompt_text = "你是一位著名的作家，名字叫做'费小V'。如�
 prompt = ChatPromptTemplate.from_messages([
     ("system", system_prompt_text),
     MessagesPlaceholder(variable_name="history"),
-    # ("human", "请对如下内容进行{action}: '{content}'")
     ("human", "{input}")
 ])
 
 prompt_free = ChatPromptTemplate.from_messages([
     ("system", system_prompt_text),
     MessagesPlaceholder(variable_name="history"),
-    # ("human", '根据用户的问题，对用户的内容进行处理。\
-    #  问题="{question}" \
-    #  内容="{content}"')
     ("human", "{input}")
 ])
 
@@ -99,11 +96,6 @@ async def get_ai_docs(request: Request, params: Annotated[AIDocBodyType, ...] = 
         exec_prompt = prompt
 
     result = None
-    # chain_params = {
-    #     "question": question,
-    #     "action": action,
-    #     "content": content,
-    # }
     chain_params = {
         "input": input_msg,
         "history": [],
@@ -111,70 +103,38 @@ async def get_ai_docs(request: Request, params: Annotated[AIDocBodyType, ...] = 
     history_config = get_history_config(user_id=user_id)
     docs_logger.info(
         f"/generate API chain_params: {chain_params}, PRODUCTION_ENV: {config.PRODUCTION_ENV}")
-
+    # 整合调用 start ----------------------------------------------------------------------------
+    # model_provider = ModelProviderEnum.zhipuAI if config.PRODUCTION_ENV else ModelProviderEnum.ollama
+    if params.model_provider:
+        try:
+            model_provider = ModelProviderEnum[params.model_provider]
+        except KeyError as e:
+            msg = f"Invalid model provider: {
+                params.model_provider}, error: {str(e)}"
+            logging.error(msg)
+            return {"success": False, "msg": msg}
+    else:
+        model_provider = ModelProviderEnum.zhipuAI if config.PRODUCTION_ENV else ModelProviderEnum.ollama
+    chat_model_params = AICompoisoModelServiceType(prompt=exec_prompt,
+                                                   chain_params=chain_params,
+                                                   user_id=user_id,
+                                                   model_provider=model_provider,
+                                                   model_name=params.model_name,
+                                                   with_history=True,
+                                                   config=history_config)
     # 1. invoke()
-    # if config.PRODUCTION_ENV:
-    #     # result = zhipuai.invoke(
-    #     #     prompt=exec_prompt, chain_params=chain_params, user_id=user_id)
-    #     result = zhipuai.invoke_with_history(
-    #         prompt=exec_prompt, chain_params=chain_params, config=history_config, user_id=user_id)
-    #     docs_logger.info(
-    #         f"/generate API, zhipuai astream_with_history start to response! ")
-    # else:
-    #     # result = ollama.invoke(
-    #     #     prompt=exec_prompt, chain_params=chain_params, user_id=user_id)
-    #     result = ollama.invoke_with_history(
-    #         prompt=exec_prompt, chain_params=chain_params, config=history_config, user_id=user_id)
-    #     docs_logger.info(
-    #         f"/generate API, ollama astream_with_history start to response! ")
-
+    # result = chat_models.invoke(chat_model_params)
     # return result
 
-    # 2. stream()
-    # if config.PRODUCTION_ENV:
-    #     # result = zhipuai.stream(
-    #     #     prompt=exec_prompt, chain_params=chain_params, user_id=user_id)
-    #     result = zhipuai.stream_with_history(
-    #         prompt=exec_prompt, chain_params=chain_params, config=history_config, user_id=user_id)
-    #     docs_logger.info(
-    #         f"/generate API, zhipuai astream_with_history start to response! ")
-    # else:
-    #     # result = ollama.stream(prompt=exec_prompt, chain_params=chain_params, user_id=user_id)
-    #     result = ollama.stream_with_history(
-    #         prompt=exec_prompt, chain_params=chain_params, config=history_config, user_id=user_id)
-    #     docs_logger.info(
-    #         f"/generate API, ollama astream_with_history start to response! ")
-
+    # # 2. stream()
+    # result = chat_models.stream(chat_model_params)
     # return StreamingResponse(stream_response(result))
 
     # 3. ainvoke()
-    # if config.PRODUCTION_ENV:
-    #     result = await zhipuai.ainvoke(
-    #         prompt=exec_prompt, chain_params=chain_params, user_id=user_id)
-    #     # result = await zhipuai.ainvoke_with_history(
-    #     #     prompt=exec_prompt, chain_params=chain_params, config=history_config, user_id=user_id)
-    #     docs_logger.info(
-    #         f"/generate API, zhipuai astream_with_history start to response! ")
-    # else:
-    #     # result = await ollama.ainvoke(
-    #     #     prompt=exec_prompt, chain_params=chain_params, user_id=user_id)
-    #     result = await ollama.ainvoke_with_history(
-    #         prompt=exec_prompt, chain_params=chain_params, config=history_config, user_id=user_id)
-    #     docs_logger.info(
-    #         f"/generate API, ollama astream_with_history start to response! ")
-
+    # result = await chat_models.ainvoke(chat_model_params)
     # return result
 
     # 4. astream()
-    if config.PRODUCTION_ENV:
-        # result = await zhipuai.astream(prompt=exec_prompt, chain_params=chain_params, user_id=user_id)
-        result = await zhipuai.astream_with_history(prompt=exec_prompt, chain_params=chain_params, config=history_config, user_id=user_id)
-        docs_logger.info(
-            f"/generate API, zhipuai astream_with_history start to response! ")
-    else:
-        # result = await ollama.astream(prompt=exec_prompt, chain_params=chain_params, user_id=user_id)
-        result = await ollama.astream_with_history(prompt=exec_prompt, chain_params=chain_params, config=history_config, user_id=user_id)
-        docs_logger.info(
-            f"/generate API, ollama astream_with_history start to response! ")
-
+    result = await chat_models.astream(chat_model_params)
     return StreamingResponse(astream_response(result))
+    # 整合调用 end ----------------------------------------------------------------------------
