@@ -1,6 +1,7 @@
 FROM python:3.12-slim
 WORKDIR /app
 RUN mkdir logs
+RUN mkdir environ
 COPY . /app
 # 安装依赖
 RUN pip install --upgrade pip
