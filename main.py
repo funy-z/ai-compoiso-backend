@@ -15,15 +15,15 @@ from database.user import add_user, query_user
 
 
 app = FastAPI()
-# 允许跨域
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-    expose_headers=["*"],
-)
+# # 允许跨域
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+#     expose_headers=["*"],
+# )
 
 
 @app.exception_handler(Exception)
