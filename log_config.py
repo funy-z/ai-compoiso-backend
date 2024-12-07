@@ -48,6 +48,9 @@ def setup_logging():
     logging.config.dictConfig(logging_config)
 
 
+setup_logging()
+
 appLogger = logging
 
-setup_logging()
+
+
